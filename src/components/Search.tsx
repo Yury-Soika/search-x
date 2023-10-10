@@ -3,18 +3,26 @@ import { useNavigate } from "react-router-dom";
 import { suggestions } from "../utils/constants";
 import SearchBar from "./SearchBar";
 import SuggestionsList from "./SuggestionsList";
+import { SearchProps } from "../utils/types";
+import useLocalStorage from "../hooks/useLocalStorage";
 
-const Search: React.FC<{ searchValue?: string }> = ({ searchValue }) => {
+const filterSuggestions = (arr: string[], value: string): string[] => {
+  const regex = new RegExp(value, "i");
+  return arr.filter((item) => regex.test(item.toString()));
+};
+
+export default ({ searchValue }: SearchProps) => {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [inputValue, setInputValue] = useState<string>(searchValue || "");
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
-  const [savedQueries, setSavedQueries] = useState<string[]>([]);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] =
     useState<number>(-1);
   const [isSuggestionsVisible, setSuggestionsVisible] =
     useState<boolean>(false);
+
+  const [savedQueries, setSavedQueries] = useLocalStorage("savedQueries", []);
 
   useEffect(() => {
     const savedQueries = JSON.parse(
@@ -23,58 +31,41 @@ const Search: React.FC<{ searchValue?: string }> = ({ searchValue }) => {
     setSavedQueries(savedQueries);
   }, []);
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "ArrowUp") {
-        e.preventDefault();
-        setSelectedSuggestionIndex((prevIndex) =>
-          prevIndex > 0 ? prevIndex - 1 : prevIndex
-        );
-      } else if (e.key === "ArrowDown") {
-        e.preventDefault();
-        setSelectedSuggestionIndex((prevIndex) =>
-          prevIndex < filteredSuggestions.length - 1 ? prevIndex + 1 : prevIndex
-        );
-      } else if (e.key === "Enter") {
-        if (selectedSuggestionIndex >= 0) {
-          setInputValue(filteredSuggestions[selectedSuggestionIndex]);
-          setSelectedSuggestionIndex(-1);
-          navigate(`/${filteredSuggestions[selectedSuggestionIndex]}/${1}`);
-        } else if (inputValue.length > 0) {
-          if (!savedQueries.includes(inputValue)) {
-            const updatedQueries = [...savedQueries, inputValue];
-            setSavedQueries(updatedQueries);
-            localStorage.setItem(
-              "savedQueries",
-              JSON.stringify(updatedQueries)
-            );
-          }
-          navigate(`/${inputValue}/${1}`);
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelectedSuggestionIndex((prevIndex) =>
+        prevIndex > 0 ? prevIndex - 1 : prevIndex
+      );
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelectedSuggestionIndex((prevIndex) =>
+        prevIndex < filteredSuggestions.length - 1 ? prevIndex + 1 : prevIndex
+      );
+    } else if (e.key === "Enter") {
+      if (selectedSuggestionIndex >= 0) {
+        setInputValue(filteredSuggestions[selectedSuggestionIndex]);
+        setSelectedSuggestionIndex(-1);
+        navigate(`/${filteredSuggestions[selectedSuggestionIndex]}`);
+      } else if (inputValue.length > 0) {
+        if (!savedQueries.includes(inputValue)) {
+          const updatedQueries = [...savedQueries, inputValue];
+          setSavedQueries(updatedQueries);
+          localStorage.setItem("savedQueries", JSON.stringify(updatedQueries));
         }
-      } else if (e.key === "Escape") {
-        setFilteredSuggestions([]);
+        navigate(`/${inputValue}`);
       }
-    },
-    [
-      filteredSuggestions,
-      inputValue,
-      savedQueries,
-      navigate,
-      selectedSuggestionIndex,
-    ]
-  );
+    } else if (e.key === "Escape") {
+      setFilteredSuggestions([]);
+    }
+  };
 
   const handleChange = (value: string) => {
     setInputValue(value);
 
     if (value) {
-      const matchingFromLocal = savedQueries.filter((keyword) =>
-        keyword.toLowerCase().includes(value.toLowerCase())
-      );
-
-      const matchingKeywords = suggestions.filter((keyword) =>
-        keyword.toLowerCase().includes(value.toLowerCase())
-      );
+      const matchingFromLocal = filterSuggestions(savedQueries, value);
+      const matchingKeywords = filterSuggestions(suggestions, value);
 
       const filteredPhrases = [
         ...new Set([...matchingFromLocal, ...matchingKeywords]),
@@ -87,14 +78,13 @@ const Search: React.FC<{ searchValue?: string }> = ({ searchValue }) => {
   };
 
   const inputValueHandler = () => {
-    console.log(inputValue);
     if (inputValue && inputValue.length > 0) {
       if (!savedQueries.includes(inputValue)) {
         const updatedQueries = [...savedQueries, inputValue];
         setSavedQueries(updatedQueries);
         localStorage.setItem("savedQueries", JSON.stringify(updatedQueries));
       }
-      navigate(`/${inputValue}/${1}`);
+      navigate(`/${inputValue}`);
     }
   };
 
@@ -159,7 +149,7 @@ const Search: React.FC<{ searchValue?: string }> = ({ searchValue }) => {
           savedQueries={savedQueries}
           handleSuggestionClick={(suggestion) => {
             setInputValue(suggestion);
-            navigate(`/${suggestion}/${1}`);
+            navigate(`/${suggestion}`);
           }}
           handleDeleteQuery={handleDeleteQuery}
           selectedSuggestionIndex={selectedSuggestionIndex}
@@ -169,5 +159,3 @@ const Search: React.FC<{ searchValue?: string }> = ({ searchValue }) => {
     </div>
   );
 };
-
-export default Search;

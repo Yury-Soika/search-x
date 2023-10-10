@@ -3,16 +3,14 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Home from "./components/Home";
 import SearchResult from "./components/SearchResult";
 
-const Router: React.FC = () => {
+export default () => {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/:query/:startIndex" element={<SearchResult />} />
+        <Route path="/:query" element={<SearchResult />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
   );
 };
-
-export default Router;

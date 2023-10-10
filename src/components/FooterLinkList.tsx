@@ -1,6 +1,10 @@
 import React from "react";
 
-const FooterLinkList: React.FC<{ items: string[] }> = ({ items }) => {
+type FooterLinkListProps = {
+  items: string[];
+};
+
+export default ({ items }: FooterLinkListProps) => {
   return (
     <div className="flex justify-center">
       {items.map((item, index) => (
@@ -14,5 +18,3 @@ const FooterLinkList: React.FC<{ items: string[] }> = ({ items }) => {
     </div>
   );
 };
-
-export default FooterLinkList;
