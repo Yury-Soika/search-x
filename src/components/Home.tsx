@@ -1,7 +1,8 @@
 import React from "react";
 import Search from "./Search";
 import Footer from "./Footer";
-const Home: React.FC = () => {
+
+export default () => {
   return (
     <div className="h-[100vh] flex flex-col">
       <main className="grow flex justify-center">
@@ -16,5 +17,3 @@ const Home: React.FC = () => {
     </div>
   );
 };
-
-export default Home;

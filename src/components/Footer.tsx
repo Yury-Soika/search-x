@@ -3,7 +3,7 @@ import React from "react";
 import { quickLinks, settingMenu } from "../utils/constants";
 import FooterLinkList from "./FooterLinkList";
 
-const Footer: React.FC = () => {
+export default () => {
   return (
     <footer className="bg-[#f2f2f2]">
       <div className="flex py-[15px] px-[15px] md:px-[30px] border-b border-[#dadce0]">
@@ -17,5 +17,3 @@ const Footer: React.FC = () => {
     </footer>
   );
 };
-
-export default Footer;

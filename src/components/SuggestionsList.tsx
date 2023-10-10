@@ -1,21 +1,23 @@
 import React from "react";
 import { IoMdClose } from "react-icons/io";
 
-const SuggestionsList: React.FC<{
+type SuggestionsListProps = {
   suggestions: string[];
   savedQueries: string[];
   handleSuggestionClick: (suggestion: string) => void;
   handleDeleteQuery: (queryToDelete: string) => void;
   selectedSuggestionIndex: number;
   setSelectedSuggestionIndex: (index: number) => void;
-}> = ({
+};
+
+export default ({
   suggestions,
   savedQueries,
   handleSuggestionClick,
   handleDeleteQuery,
   selectedSuggestionIndex,
   setSelectedSuggestionIndex,
-}) => {
+}: SuggestionsListProps) => {
   return (
     <div className="absolute top-[calc(100%+10px)] left-0 w-full bg-white z-10 overflow-y-auto hidden sm:block rounded-lg border border-gray-300 shadow-md">
       {suggestions.map((suggestion, index) => (
@@ -47,5 +49,3 @@ const SuggestionsList: React.FC<{
     </div>
   );
 };
-
-export default SuggestionsList;

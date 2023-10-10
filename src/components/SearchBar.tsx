@@ -2,7 +2,7 @@ import React from "react";
 import { AiOutlineSearch } from "react-icons/ai";
 import { IoMdClose } from "react-icons/io";
 
-const SearchBar: React.FC<{
+type SearchBarProps = {
   inputValue: string;
   handleChange: (value: string) => void;
   inputValueHandler: () => void;
@@ -12,7 +12,9 @@ const SearchBar: React.FC<{
   onFocus: () => void;
   onBlur: () => void;
   onClick: () => void;
-}> = ({
+};
+
+export default ({
   inputValue,
   handleChange,
   inputValueHandler,
@@ -22,7 +24,7 @@ const SearchBar: React.FC<{
   onFocus,
   onBlur,
   onClick,
-}) => {
+}: SearchBarProps) => {
   const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       inputValueHandler();
@@ -61,5 +63,3 @@ const SearchBar: React.FC<{
     </div>
   );
 };
-
-export default SearchBar;

@@ -6,12 +6,7 @@ import SearchResultHeader from "./SearchResultHeader";
 import Footer from "./Footer";
 import SearchedItemTemplate from "./SearchedItemTemplate";
 import { fakeDB } from "../utils/constants";
-
-export type SearchResultItem = {
-  title: string;
-  snippet: string;
-  url: string;
-};
+import { SearchResultItem } from "../utils/types";
 
 type SearchResultType = {
   items: SearchResultItem[];
@@ -19,7 +14,27 @@ type SearchResultType = {
   executionTime: string;
 } | null;
 
-const SearchResult: React.FC = () => {
+const filterByKeyword = async (keyword: string, startTime: number) => {
+  if (!keyword) {
+    return null;
+  }
+
+  const lowercaseKeyword = keyword.toLowerCase();
+
+  const filteredData = fakeDB.filter((item) =>
+    item.title.toLowerCase().includes(lowercaseKeyword)
+  );
+
+  const executionTime = (performance.now() - startTime).toFixed(2);
+
+  return {
+    items: filteredData,
+    count: filteredData.length,
+    executionTime,
+  };
+};
+
+export default () => {
   const { query } = useParams();
   const [searchResult, setSearchResult] = useState<SearchResultType>(null);
   const [hasMore, setHasMore] = useState(true);
@@ -28,35 +43,15 @@ const SearchResult: React.FC = () => {
 
   useEffect(() => {
     const filterResults = async () => {
+      const startTime = performance.now();
       const filteredResults: SearchResultType = await filterByKeyword(
-        query || ""
+        query || "",
+        startTime
       );
       setSearchResult(filteredResults);
     };
     filterResults();
   }, [query]);
-
-  const filterByKeyword = async (keyword: string) => {
-    const startTime = performance.now();
-    if (!keyword) {
-      return null;
-    }
-
-    const lowercaseKeyword = keyword.toLowerCase();
-
-    const filteredData = fakeDB.filter((item) =>
-      item.title.toLowerCase().includes(lowercaseKeyword)
-    );
-    const endTime = performance.now();
-
-    const executionTime = (endTime - startTime).toFixed(2);
-
-    return {
-      items: filteredData,
-      count: filteredData.length,
-      executionTime,
-    };
-  };
 
   useEffect(() => {
     if (searchResult) {
@@ -110,5 +105,3 @@ const SearchResult: React.FC = () => {
     </div>
   );
 };
-
-export default SearchResult;
